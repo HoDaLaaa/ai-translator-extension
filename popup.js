@@ -72,9 +72,6 @@ function displayWords(words) {
 
   // 產生所有單字卡片的 HTML
   wordList.innerHTML = words.map(word => createWordCard(word)).join('');
-
-  // 綁定刪除按鈕的事件（必須在 HTML 插入後才能綁定）
-  bindDeleteButtons();
 }
 
 /**
@@ -88,7 +85,15 @@ function createWordCard(word) {
   const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
 
   // 從 URL 取得網域名稱（例如：https://nytimes.com/... → nytimes.com）
-  const domain = word.sourceUrl ? new URL(word.sourceUrl).hostname.replace('www.', '') : '未知來源';
+  let domain = '未知來源';
+  if (word.sourceUrl) {
+    try {
+      domain = new URL(word.sourceUrl).hostname.replace('www.', '');
+    } catch (error) {
+      console.warn('Invalid source URL:', word.sourceUrl, error);
+      domain = '未知來源';
+    }
+  }
 
   // 建立範例句子列表
   const examplesHtml = word.examples && word.examples.length > 0
@@ -226,19 +231,6 @@ function updateFilteredCount(count) {
 // ===================================
 
 /**
- * 綁定所有刪除按鈕的點擊事件
- */
-function bindDeleteButtons() {
-  const deleteButtons = document.querySelectorAll('.delete-btn');
-  deleteButtons.forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const wordId = e.target.dataset.wordId;
-      await deleteWord(wordId);
-    });
-  });
-}
-
-/**
  * 刪除指定的單字
  * @param {string} id - 要刪除的單字 ID
  */
@@ -349,13 +341,25 @@ async function importVocabulary(file) {
       throw new Error('檔案格式錯誤：必須是陣列');
     }
 
-    // 驗證每個單字物件的必要欄位
-    const isValid = importedWords.every(word =>
-      word.id && word.word && word.language && word.translation && word.savedAt
-    );
+    // 驗證每個單字物件的必要欄位和資料型別
+    const validLanguages = ['en', 'ja', 'zh', 'ko'];
+
+    const isValid = importedWords.every(word => {
+      return word.id &&
+             typeof word.id === 'string' &&
+             word.word &&
+             typeof word.word === 'string' &&
+             word.language &&
+             validLanguages.includes(word.language) &&
+             word.translation &&
+             typeof word.translation === 'string' &&
+             word.savedAt &&
+             !isNaN(new Date(word.savedAt).getTime());
+    });
 
     if (!isValid) {
-      throw new Error('檔案格式錯誤：單字資料不完整');
+      alert('檔案格式錯誤！請確認匯入的是有效的單字表 JSON 檔案。');
+      return;
     }
 
     // 詢問使用者是覆蓋還是合併
@@ -414,7 +418,15 @@ function initializeEventListeners() {
     searchWords(e.target.value);
   });
 
-  // 3. 語言篩選按鈕
+  // 3. 刪除按鈕事件委派 (綁定在父容器上，避免記憶體洩漏)
+  document.getElementById('word-list').addEventListener('click', async (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+      const wordId = e.target.dataset.wordId;
+      await deleteWord(wordId);
+    }
+  });
+
+  // 4. 語言篩選按鈕
   const filterButtons = document.querySelectorAll('.filter-btn');
   filterButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -430,15 +442,15 @@ function initializeEventListeners() {
     });
   });
 
-  // 4. 匯出按鈕
+  // 5. 匯出按鈕
   document.getElementById('export-btn').addEventListener('click', exportVocabulary);
 
-  // 5. 匯入按鈕（觸發檔案選擇器）
+  // 6. 匯入按鈕（觸發檔案選擇器）
   document.getElementById('import-btn').addEventListener('click', () => {
     document.getElementById('import-file').click();
   });
 
-  // 6. 檔案選擇器（使用者選擇檔案後）
+  // 7. 檔案選擇器（使用者選擇檔案後）
   document.getElementById('import-file').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
