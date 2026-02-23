@@ -4,6 +4,7 @@ console.log('AI Translator Extension: Content script loaded');
 let selectedText = '';
 let selectionRange = null;
 let iconElement = null;
+let scrollTimeout;
 
 // Listen for text selection
 document.addEventListener('mouseup', handleTextSelection);
@@ -15,6 +16,20 @@ document.addEventListener('mousedown', (event) => {
     removeIcon();
   }
 });
+
+// Remove icon when scrolling (icon position becomes incorrect after scroll)
+window.addEventListener('scroll', () => {
+  if (iconElement) {
+    // Hide icon temporarily during scroll
+    iconElement.style.opacity = '0';
+
+    // Remove icon after scroll stops
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      removeIcon();
+    }, 150);
+  }
+}, { passive: true });
 
 function handleTextSelection(event) {
   try {
@@ -45,11 +60,37 @@ function showIcon() {
   iconElement.innerHTML = '💡';
   iconElement.title = '點擊查看 AI 解釋';
 
-  // Position icon at the end of selection
+  // Position icon with boundary detection
   const rect = selectionRange.getBoundingClientRect();
-  iconElement.style.position = 'fixed';
-  iconElement.style.left = `${rect.right + 5}px`;
-  iconElement.style.top = `${rect.top}px`;
+  const iconSize = 32; // Match CSS width/height
+  const offset = 5;
+
+  // Calculate position (prefer right, fallback to left if too close to edge)
+  let left = rect.right + offset;
+  let top = rect.top;
+
+  // Check right boundary
+  if (left + iconSize > window.innerWidth) {
+    left = rect.left - iconSize - offset;
+  }
+
+  // Check left boundary (if both sides fail, use right anyway)
+  if (left < 0) {
+    left = rect.right + offset;
+  }
+
+  // Check top boundary
+  if (top < 0) {
+    top = 0;
+  }
+
+  // Check bottom boundary
+  if (top + iconSize > window.innerHeight) {
+    top = window.innerHeight - iconSize;
+  }
+
+  iconElement.style.left = `${left}px`;
+  iconElement.style.top = `${top}px`;
 
   // Add click handler
   iconElement.addEventListener('click', handleIconClick);
@@ -58,13 +99,14 @@ function showIcon() {
   document.body.appendChild(iconElement);
 
   // Fade in animation
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     iconElement.classList.add('visible');
-  }, 10);
+  });
 }
 
 function removeIcon() {
   if (iconElement) {
+    // element.remove() automatically cleans up event listeners
     iconElement.remove();
     iconElement = null;
   }
@@ -77,6 +119,7 @@ function handleIconClick(event) {
 }
 
 // Keep the improved getSelectionContext from Task 2
+// Will be used in Task 4 to send context to AI along with selected text
 function getSelectionContext(range, textContent, contextLength) {
   const container = range.commonAncestorContainer;
   const fullText = container.textContent || '';
