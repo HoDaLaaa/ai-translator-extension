@@ -141,9 +141,49 @@ function getSelectionContext(range, textContent, contextLength) {
   return fullText.substring(contextStart, contextEnd);
 }
 
+function detectResponseMode(text) {
+  // Priority 1: Check for sentence-ending punctuation
+  const sentenceEndings = /[.?!？！。]/;
+  if (sentenceEndings.test(text)) {
+    return 'translation';
+  }
+
+  // Priority 2: Count words
+  const wordCount = countWords(text);
+  if (wordCount >= 10) {
+    return 'translation';
+  }
+
+  // Default: learning mode
+  return 'learning';
+}
+
+function countWords(text) {
+  // Remove extra whitespace
+  text = text.trim();
+
+  // Check if text contains CJK characters (Chinese, Japanese, Korean)
+  const cjkPattern = /[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/;
+  const hasCJK = cjkPattern.test(text);
+
+  if (hasCJK) {
+    // For CJK text, count characters as words
+    const cjkChars = text.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g);
+    return cjkChars ? cjkChars.length : 1;
+  } else {
+    // For non-CJK text, split by whitespace
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    return words.length;
+  }
+}
+
 function showFloatingWindow() {
   // Remove existing window
   removeFloatingWindow();
+
+  // Detect response mode
+  const mode = detectResponseMode(selectedText);
+  console.log('Response mode:', mode, 'for text:', selectedText);
 
   // Create window element
   floatingWindow = document.createElement('div');
@@ -154,9 +194,10 @@ function showFloatingWindow() {
   positionWindow(floatingWindow, rect);
 
   // Show loading state
+  const modeIcon = mode === 'learning' ? '🎓' : '🌐';
   floatingWindow.innerHTML = `
     <div class="ai-translator-header">
-      <span class="ai-translator-title">🌐 ${escapeHtml(selectedText.substring(0, 30))}${selectedText.length > 30 ? '...' : ''}</span>
+      <span class="ai-translator-title">${modeIcon} ${escapeHtml(selectedText.substring(0, 30))}${selectedText.length > 30 ? '...' : ''}</span>
       <button class="ai-translator-close">✕</button>
     </div>
     <div class="ai-translator-content">
@@ -182,7 +223,8 @@ function showFloatingWindow() {
   // Remove icon
   removeIcon();
 
-  // TODO: Request translation from background script (Task 6)
+  // Request translation from background script
+  requestTranslation(mode);
 }
 
 function positionWindow(windowElement, selectionRect) {
@@ -221,4 +263,127 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+async function requestTranslation(mode) {
+  const context = getSelectionContext(selectionRange, selectedText, 50);
+
+  // Check text length
+  if (selectedText.length > 1000) {
+    displayError('選取的文字超過 1000 字，請選取較短的片段。');
+    return;
+  }
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      action: 'translate',
+      data: {
+        text: selectedText,
+        context: context,
+        mode: mode
+      }
+    });
+
+    if (response.success) {
+      displayTranslation(response.data, mode);
+    } else {
+      displayError(response.error);
+    }
+  } catch (error) {
+    console.error('Translation error:', error);
+    displayError('發生錯誤：' + error.message);
+  }
+}
+
+function displayTranslation(data, mode) {
+  if (!floatingWindow) return;
+
+  const content = floatingWindow.querySelector('.ai-translator-content');
+
+  if (mode === 'learning') {
+    // Learning mode: show full details
+    content.innerHTML = `
+      <div class="translation-section">
+        <div class="section-header">📖 翻譯</div>
+        <div class="section-content">${escapeHtml(data.translation)}</div>
+      </div>
+
+      ${data.partOfSpeech ? `
+      <div class="translation-section">
+        <div class="section-header">📝 詞性</div>
+        <div class="section-content">${escapeHtml(data.partOfSpeech)}</div>
+      </div>
+      ` : ''}
+
+      ${data.explanation ? `
+      <div class="translation-section">
+        <div class="section-header">💡 說明</div>
+        <div class="section-content">${escapeHtml(data.explanation)}</div>
+      </div>
+      ` : ''}
+
+      ${data.examples && data.examples.length > 0 ? `
+      <div class="translation-section">
+        <div class="section-header">✨ 例句</div>
+        <div class="section-content">
+          ${data.examples.map(ex => `<div class="example">• ${escapeHtml(ex)}</div>`).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <div class="translation-actions">
+        <button class="btn-action btn-save">⭐ 加入單字表</button>
+        <button class="btn-action btn-close-action">✕ 關閉</button>
+      </div>
+    `;
+  } else {
+    // Translation mode: show only translation
+    content.innerHTML = `
+      <div class="translation-section">
+        <div class="section-header">📖 翻譯</div>
+        <div class="section-content translation-only">${escapeHtml(data.translation)}</div>
+      </div>
+
+      <div class="translation-actions">
+        <button class="btn-action btn-close-action">✕ 關閉</button>
+      </div>
+    `;
+  }
+
+  // Add event listeners
+  const saveBtn = content.querySelector('.btn-save');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => saveToVocabulary(data));
+  }
+
+  const closeBtn = content.querySelector('.btn-close-action');
+  closeBtn.addEventListener('click', removeFloatingWindow);
+}
+
+function displayError(errorMessage) {
+  if (!floatingWindow) return;
+
+  const content = floatingWindow.querySelector('.ai-translator-content');
+  content.innerHTML = `
+    <div class="error-message">
+      <div class="error-icon">⚠️</div>
+      <div class="error-text">${escapeHtml(errorMessage)}</div>
+      <button class="btn-action">知道了</button>
+    </div>
+  `;
+
+  const btn = content.querySelector('.btn-action');
+  btn.addEventListener('click', removeFloatingWindow);
+}
+
+async function saveToVocabulary(data) {
+  // TODO: Implement in Task 8
+  console.log('Save to vocabulary:', data);
+
+  const saveBtn = floatingWindow.querySelector('.btn-save');
+  if (saveBtn) {
+    saveBtn.textContent = '✓ 已加入';
+    saveBtn.disabled = true;
+    saveBtn.style.background = '#28a745';
+  }
 }

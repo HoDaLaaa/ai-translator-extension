@@ -124,3 +124,91 @@
   margin: 0;
   font-size: 14px;
 }
+
+/* Translation content sections */
+.translation-section {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.section-content {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.translation-only {
+  font-size: 15px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.example {
+  margin: 6px 0;
+  padding-left: 8px;
+}
+
+.translation-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-save {
+  background: #4A90E2;
+  color: white;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: #357ABD;
+}
+
+.btn-save:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-close-action {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-close-action:hover {
+  background: #e0e0e0;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.error-text {
+  color: #721c24;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
