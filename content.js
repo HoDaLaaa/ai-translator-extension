@@ -33,8 +33,12 @@ function getSelectionContext(range, textContent, contextLength) {
   const container = range.commonAncestorContainer;
   const fullText = container.textContent || '';
 
-  // Use range's actual start position instead of indexOf
-  const startOffset = range.startOffset;
+  // Calculate the actual position of selection start within the container's text
+  // This handles cross-node selections correctly
+  const preRange = document.createRange();
+  preRange.selectNodeContents(container);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const startOffset = preRange.toString().length;
 
   const contextStart = Math.max(0, startOffset - contextLength);
   const contextEnd = Math.min(fullText.length, startOffset + textContent.length + contextLength);
