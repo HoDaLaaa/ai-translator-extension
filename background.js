@@ -39,14 +39,14 @@ async function handleTranslateRequest(data) {
     throw new Error('請先在設定中填寫 API Key');
   }
 
-  const model = settings.customModel || settings.model || 'claude-sonnet-4';
-  const endpoint = settings.apiEndpoint || 'https://api.anthropic.com/v1/messages';
+  const model = settings.customModel || settings.model || 'gpt-4o';
+  const endpoint = settings.apiEndpoint || 'https://api.openai.com/v1';
 
   // Build prompt based on mode
   const prompt = buildPrompt(text, context, mode);
 
   // Call API
-  const result = await callClaudeAPI(endpoint, settings.apiKey, model, prompt);
+  const result = await callAPI(endpoint, settings.apiKey, model, prompt);
 
   // Update stats
   await updateStats();
@@ -89,27 +89,33 @@ function buildPrompt(text, context, mode) {
   }
 }
 
-async function callClaudeAPI(endpoint, apiKey, model, prompt) {
+async function callAPI(endpoint, apiKey, model, prompt) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
   try {
-    const response = await fetch(endpoint, {
+    // Build OpenAI-compatible endpoint
+    const apiUrl = endpoint.endsWith('/')
+      ? endpoint + 'chat/completions'
+      : endpoint + '/chat/completions';
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: model,
         max_tokens: 1024,
+        temperature: 0.8,
         messages: [
           {
             role: 'user',
             content: prompt
           }
-        ]
+        ],
+        stream: false
       }),
       signal: controller.signal
     });
@@ -117,12 +123,20 @@ async function callClaudeAPI(endpoint, apiKey, model, prompt) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || `API 錯誤:${response.status}`);
+      const errorText = await response.text();
+      let errorMessage = `API 錯誤: ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error?.message || errorMessage;
+      } catch {
+        errorMessage += ` - ${errorText}`;
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
-    const content = data.content[0].text;
+    // OpenAI format: choices[0].message.content
+    const content = data.choices[0].message.content;
 
     return parseResponse(content);
   } catch (error) {
@@ -192,22 +206,27 @@ async function testApiConnection(config) {
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   try {
-    const response = await fetch(apiEndpoint, {
+    // Build OpenAI-compatible endpoint
+    const endpoint = apiEndpoint.endsWith('/')
+      ? apiEndpoint + 'chat/completions'
+      : apiEndpoint + '/chat/completions';
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: model,
-        max_tokens: 50,
+        model: model || 'gpt-4o',
+        max_tokens: 10,
         messages: [
           {
             role: 'user',
-            content: '測試連線。請回覆:連線成功'
+            content: 'Test connection'
           }
-        ]
+        ],
+        stream: false
       }),
       signal: controller.signal
     });
@@ -215,8 +234,15 @@ async function testApiConnection(config) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || `API 錯誤:${response.status}`);
+      const errorText = await response.text();
+      let errorMessage = `API 錯誤: ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error?.message || errorMessage;
+      } catch {
+        errorMessage += ` - ${errorText}`;
+      }
+      throw new Error(errorMessage);
     }
 
     return true;
