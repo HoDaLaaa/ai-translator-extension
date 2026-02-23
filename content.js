@@ -4,14 +4,18 @@ console.log('AI Translator Extension: Content script loaded');
 let selectedText = '';
 let selectionRange = null;
 let iconElement = null;
+let floatingWindow = null;
 let scrollTimeout;
 
 // Listen for text selection
 document.addEventListener('mouseup', handleTextSelection);
 document.addEventListener('keyup', handleTextSelection);
 
-// Remove icon when clicking elsewhere
+// Remove icon and window when clicking elsewhere
 document.addEventListener('mousedown', (event) => {
+  if (floatingWindow && !floatingWindow.contains(event.target) && !iconElement?.contains(event.target)) {
+    removeFloatingWindow();
+  }
   if (iconElement && !iconElement.contains(event.target)) {
     removeIcon();
   }
@@ -115,7 +119,7 @@ function removeIcon() {
 function handleIconClick(event) {
   event.stopPropagation();
   console.log('Icon clicked! Selected text:', selectedText);
-  // TODO: Show floating window (Task 4)
+  showFloatingWindow();
 }
 
 // Keep the improved getSelectionContext from Task 2
@@ -135,4 +139,86 @@ function getSelectionContext(range, textContent, contextLength) {
   const contextEnd = Math.min(fullText.length, startOffset + textContent.length + contextLength);
 
   return fullText.substring(contextStart, contextEnd);
+}
+
+function showFloatingWindow() {
+  // Remove existing window
+  removeFloatingWindow();
+
+  // Create window element
+  floatingWindow = document.createElement('div');
+  floatingWindow.className = 'ai-translator-window';
+
+  // Position near selection
+  const rect = selectionRange.getBoundingClientRect();
+  positionWindow(floatingWindow, rect);
+
+  // Show loading state
+  floatingWindow.innerHTML = `
+    <div class="ai-translator-header">
+      <span class="ai-translator-title">🌐 ${escapeHtml(selectedText.substring(0, 30))}${selectedText.length > 30 ? '...' : ''}</span>
+      <button class="ai-translator-close">✕</button>
+    </div>
+    <div class="ai-translator-content">
+      <div class="ai-translator-loading">
+        <div class="spinner"></div>
+        <p>🤔 AI 正在思考中...</p>
+      </div>
+    </div>
+  `;
+
+  // Add close button handler
+  const closeBtn = floatingWindow.querySelector('.ai-translator-close');
+  closeBtn.addEventListener('click', removeFloatingWindow);
+
+  // Add to page
+  document.body.appendChild(floatingWindow);
+
+  // Fade in
+  requestAnimationFrame(() => {
+    floatingWindow.classList.add('visible');
+  });
+
+  // Remove icon
+  removeIcon();
+
+  // TODO: Request translation from background script (Task 6)
+}
+
+function positionWindow(windowElement, selectionRect) {
+  const windowWidth = 400;
+  const windowHeight = 300;
+
+  let left = selectionRect.right + 10;
+  let top = selectionRect.top;
+
+  // Adjust if window would go off screen (right edge)
+  if (left + windowWidth > window.innerWidth) {
+    left = selectionRect.left - windowWidth - 10;
+  }
+
+  // Adjust if window would go off screen (bottom edge)
+  if (top + windowHeight > window.innerHeight) {
+    top = window.innerHeight - windowHeight - 10;
+  }
+
+  // Make sure not off top or left edge
+  left = Math.max(10, left);
+  top = Math.max(10, top);
+
+  windowElement.style.left = `${left}px`;
+  windowElement.style.top = `${top}px`;
+}
+
+function removeFloatingWindow() {
+  if (floatingWindow) {
+    floatingWindow.remove();
+    floatingWindow = null;
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
