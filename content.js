@@ -118,7 +118,8 @@ function removeIcon() {
 
 function handleIconClick(event) {
   event.stopPropagation();
-  console.log('Icon clicked! Selected text:', selectedText);
+  console.log('🔍 Icon clicked!');
+  console.log('🔍 Selected text:', selectedText);
   showFloatingWindow();
 }
 
@@ -178,13 +179,20 @@ function countWords(text) {
 }
 
 async function showFloatingWindow() {
+  console.log('🔍 showFloatingWindow() called');
+
   // Check if API is configured
+  console.log('🔍 Checking API key...');
   const settings = await chrome.storage.local.get(['apiKey']);
+  console.log('🔍 API key exists:', !!settings.apiKey);
 
   if (!settings.apiKey) {
+    console.log('🔍 No API key, showing first-time setup');
     showFirstTimeSetup();
     return;
   }
+
+  console.log('🔍 API key found, continuing...');
 
   // Remove existing window
   removeFloatingWindow();
@@ -215,6 +223,7 @@ async function showFloatingWindow() {
       </div>
     </div>
   `;
+  console.log('🔍 Floating window HTML set');
 
   // Add close button handler
   const closeBtn = floatingWindow.querySelector('.ai-translator-close');
@@ -222,10 +231,12 @@ async function showFloatingWindow() {
 
   // Add to page
   document.body.appendChild(floatingWindow);
+  console.log('🔍 Floating window appended to body');
 
   // Fade in
   requestAnimationFrame(() => {
     floatingWindow.classList.add('visible');
+    console.log('🔍 Floating window made visible');
   });
 
   // Remove icon
@@ -236,6 +247,9 @@ async function showFloatingWindow() {
 }
 
 function showFirstTimeSetup() {
+  console.log('🔍 showFirstTimeSetup() called');
+  console.log('🔍 selectionRange:', selectionRange);
+
   removeFloatingWindow();
 
   floatingWindow = document.createElement('div');
@@ -260,6 +274,7 @@ function showFirstTimeSetup() {
       </div>
     </div>
   `;
+  console.log('🔍 First-time setup window HTML set');
 
   const closeBtn = floatingWindow.querySelector('.ai-translator-close');
   closeBtn.addEventListener('click', removeFloatingWindow);
@@ -271,7 +286,12 @@ function showFirstTimeSetup() {
   });
 
   document.body.appendChild(floatingWindow);
-  setTimeout(() => floatingWindow.classList.add('visible'), 10);
+  console.log('🔍 First-time setup window appended to body');
+
+  setTimeout(() => {
+    floatingWindow.classList.add('visible');
+    console.log('🔍 First-time setup window made visible');
+  }, 10);
   removeIcon();
 }
 
@@ -301,6 +321,7 @@ function positionWindow(windowElement, selectionRect) {
 }
 
 function removeFloatingWindow() {
+  console.log('🔍 removeFloatingWindow() called, floatingWindow exists:', !!floatingWindow);
   if (floatingWindow) {
     floatingWindow.remove();
     floatingWindow = null;
