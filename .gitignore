@@ -1,0 +1,26 @@
+# 作業系統產生的檔案
+.DS_Store
+Thumbs.db
+
+# 編輯器和 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 臨時檔案
+*.log
+*.tmp
+
+# Node modules (如果未來需要)
+node_modules/
+
+# 打包後的檔案
+dist/
+build/
+*.zip
+
+# 敏感資訊（雖然不會存在 repo 中，但預防萬一）
+.env
+secrets.json
