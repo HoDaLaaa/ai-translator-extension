@@ -269,7 +269,9 @@ async function showFloatingWindow() {
   removeIcon();
 
   // Request translation from background script
+  console.log('🔍 About to call requestTranslation with mode:', mode);
   requestTranslation(mode);
+  console.log('🔍 requestTranslation called');
 }
 
 function showFirstTimeSetup() {
