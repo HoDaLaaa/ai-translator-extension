@@ -377,13 +377,48 @@ function displayError(errorMessage) {
 }
 
 async function saveToVocabulary(data) {
-  // TODO: Implement in Task 8
-  console.log('Save to vocabulary:', data);
+  const word = {
+    id: Date.now().toString(),
+    word: selectedText,
+    language: detectLanguage(selectedText),
+    translation: data.translation,
+    partOfSpeech: data.partOfSpeech || '',
+    explanation: data.explanation || '',
+    examples: data.examples || [],
+    context: getSelectionContext(selectionRange, selectedText, 50),
+    sourceUrl: window.location.href,
+    savedAt: new Date().toISOString()
+  };
 
-  const saveBtn = floatingWindow.querySelector('.btn-save');
-  if (saveBtn) {
-    saveBtn.textContent = '✓ 已加入';
-    saveBtn.disabled = true;
-    saveBtn.style.background = '#28a745';
+  try {
+    const response = await chrome.runtime.sendMessage({
+      action: 'saveWord',
+      data: word
+    });
+
+    if (response.success) {
+      const saveBtn = floatingWindow.querySelector('.btn-save');
+      if (saveBtn) {
+        saveBtn.textContent = '✓ 已加入';
+        saveBtn.disabled = true;
+        saveBtn.style.background = '#28a745';
+      }
+    } else {
+      alert('儲存失敗：' + response.error);
+    }
+  } catch (error) {
+    alert('儲存失敗：' + error.message);
   }
+}
+
+function detectLanguage(text) {
+  // Simple language detection based on character sets
+  const japanesePattern = /[\u3040-\u309f\u30a0-\u30ff]/;
+
+  if (japanesePattern.test(text)) {
+    return 'ja';
+  }
+
+  // Default to English for non-CJK text
+  return 'en';
 }

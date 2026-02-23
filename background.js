@@ -19,6 +19,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.action === 'saveWord') {
+    saveWord(request.data)
+      .then(() => sendResponse({ success: true }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
   sendResponse({ status: 'ok' });
 });
 
@@ -232,4 +239,28 @@ async function updateStats() {
       lastUsed: new Date().toISOString()
     }
   });
+}
+
+async function saveWord(word) {
+  // Get existing vocabulary
+  const result = await chrome.storage.local.get(['vocabulary']);
+  const vocabulary = result.vocabulary || [];
+
+  // Check for duplicates
+  const duplicate = vocabulary.find(w =>
+    w.word.toLowerCase() === word.word.toLowerCase() &&
+    w.sourceUrl === word.sourceUrl
+  );
+
+  if (duplicate) {
+    throw new Error('此單字已經在單字表中');
+  }
+
+  // Add new word (at beginning)
+  vocabulary.unshift(word);
+
+  // Save back to storage
+  await chrome.storage.local.set({ vocabulary });
+
+  console.log('Word saved:', word);
 }
