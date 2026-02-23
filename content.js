@@ -361,14 +361,21 @@ function escapeHtml(text) {
 }
 
 async function requestTranslation(mode) {
+  console.log('🔍 requestTranslation() called, mode:', mode);
+  console.log('🔍 selectedText:', selectedText);
+  console.log('🔍 selectedText.length:', selectedText.length);
+
   const context = getSelectionContext(selectionRange, selectedText, 50);
+  console.log('🔍 context retrieved:', context);
 
   // Check text length
   if (selectedText.length > 1000) {
+    console.log('🔍 Text too long, showing error');
     displayError('選取的文字超過 1000 字，請選取較短的片段。');
     return;
   }
 
+  console.log('🔍 About to send message to background script');
   try {
     const response = await chrome.runtime.sendMessage({
       action: 'translate',
@@ -379,21 +386,32 @@ async function requestTranslation(mode) {
       }
     });
 
+    console.log('🔍 Response received:', response);
+
     if (response.success) {
+      console.log('🔍 Response success, calling displayTranslation');
+      console.log('🔍 Response data:', response.data);
       displayTranslation(response.data, mode);
     } else {
+      console.log('🔍 Response failed:', response.error);
       displayError(response.error);
     }
   } catch (error) {
-    console.error('Translation error:', error);
+    console.error('🔍 Translation error caught:', error);
     displayError('發生錯誤：' + error.message);
   }
 }
 
 function displayTranslation(data, mode) {
+  console.log('🔍 displayTranslation() called');
+  console.log('🔍 mode:', mode);
+  console.log('🔍 data:', data);
+  console.log('🔍 floatingWindow exists:', !!floatingWindow);
+
   if (!floatingWindow) return;
 
   const content = floatingWindow.querySelector('.ai-translator-content');
+  console.log('🔍 content element:', content);
 
   // C1 FIX: Capture values at display time to prevent race conditions
   // If user selects different text before clicking "Add to vocabulary",
@@ -404,6 +422,7 @@ function displayTranslation(data, mode) {
 
   if (mode === 'learning') {
     // Learning mode: show full details
+    console.log('🔍 Setting learning mode HTML');
     content.innerHTML = `
       <div class="translation-section">
         <div class="section-header">📖 翻譯</div>
@@ -438,8 +457,10 @@ function displayTranslation(data, mode) {
         <button class="btn-action btn-close-action">✕ 關閉</button>
       </div>
     `;
+    console.log('🔍 Learning mode HTML set');
   } else {
     // Translation mode: show only translation
+    console.log('🔍 Setting translation mode HTML');
     content.innerHTML = `
       <div class="translation-section">
         <div class="section-header">📖 翻譯</div>
@@ -450,17 +471,24 @@ function displayTranslation(data, mode) {
         <button class="btn-action btn-close-action">✕ 關閉</button>
       </div>
     `;
+    console.log('🔍 Translation mode HTML set');
   }
 
   // Add event listeners
   const saveBtn = content.querySelector('.btn-save');
+  console.log('🔍 Save button found:', !!saveBtn);
   if (saveBtn) {
     // Pass captured values to prevent race conditions
     saveBtn.addEventListener('click', () => saveToVocabulary(data, wordToSave, rangeToSave, currentUrl));
+    console.log('🔍 Save button event bound');
   }
 
   const closeBtn = content.querySelector('.btn-close-action');
-  closeBtn.addEventListener('click', removeFloatingWindow);
+  console.log('🔍 Close button found:', !!closeBtn);
+  if (closeBtn) {
+    closeBtn.addEventListener('click', removeFloatingWindow);
+    console.log('🔍 Close button event bound');
+  }
 }
 
 function displayError(errorMessage) {
