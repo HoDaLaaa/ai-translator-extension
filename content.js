@@ -177,7 +177,15 @@ function countWords(text) {
   }
 }
 
-function showFloatingWindow() {
+async function showFloatingWindow() {
+  // Check if API is configured
+  const settings = await chrome.storage.local.get(['apiKey']);
+
+  if (!settings.apiKey) {
+    showFirstTimeSetup();
+    return;
+  }
+
   // Remove existing window
   removeFloatingWindow();
 
@@ -225,6 +233,46 @@ function showFloatingWindow() {
 
   // Request translation from background script
   requestTranslation(mode);
+}
+
+function showFirstTimeSetup() {
+  removeFloatingWindow();
+
+  floatingWindow = document.createElement('div');
+  floatingWindow.className = 'ai-translator-window';
+
+  const rect = selectionRange.getBoundingClientRect();
+  positionWindow(floatingWindow, rect);
+
+  floatingWindow.innerHTML = `
+    <div class="ai-translator-header">
+      <span class="ai-translator-title">👋 歡迎使用！</span>
+      <button class="ai-translator-close">✕</button>
+    </div>
+    <div class="ai-translator-content">
+      <div class="error-message">
+        <div class="error-icon">⚙️</div>
+        <div class="error-title">首次使用需要設定</div>
+        <div class="error-text">請先設定 AI API 才能開始使用翻譯功能。</div>
+        <div class="error-actions">
+          <button class="btn-action btn-setup">立即設定</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const closeBtn = floatingWindow.querySelector('.ai-translator-close');
+  closeBtn.addEventListener('click', removeFloatingWindow);
+
+  const setupBtn = floatingWindow.querySelector('.btn-setup');
+  setupBtn.addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+    removeFloatingWindow();
+  });
+
+  document.body.appendChild(floatingWindow);
+  setTimeout(() => floatingWindow.classList.add('visible'), 10);
+  removeIcon();
 }
 
 function positionWindow(windowElement, selectionRect) {
@@ -372,16 +420,67 @@ function displayError(errorMessage) {
   if (!floatingWindow) return;
 
   const content = floatingWindow.querySelector('.ai-translator-content');
+
+  // Determine error type and show appropriate message
+  let icon = '⚠️';
+  let title = '發生錯誤';
+  let actions = '<button class="btn-action btn-close-error">知道了</button>';
+
+  if (errorMessage.includes('API Key') || errorMessage.includes('金鑰')) {
+    icon = '🔑';
+    title = '需要設定 API Key';
+    errorMessage = 'API Key 似乎無效或未設定。';
+    actions = `
+      <button class="btn-action btn-settings">前往設定</button>
+      <button class="btn-action btn-close-error">稍後再試</button>
+    `;
+  } else if (errorMessage.includes('網路') || errorMessage.includes('network') || errorMessage.includes('fetch')) {
+    icon = '🌐';
+    title = '網路連線失敗';
+    errorMessage = '無法連接到 AI 服務，請檢查網路連線後再試一次。';
+    actions = `
+      <button class="btn-action btn-retry">重試</button>
+      <button class="btn-action btn-close-error">關閉</button>
+    `;
+  } else if (errorMessage.includes('timeout') || errorMessage.includes('超時')) {
+    icon = '⏱️';
+    title = '請求超時';
+    errorMessage = 'AI 服務回應時間過長，可能是伺服器繁忙。要重試嗎？';
+    actions = `
+      <button class="btn-action btn-retry">重試</button>
+      <button class="btn-action btn-close-error">關閉</button>
+    `;
+  }
+
   content.innerHTML = `
     <div class="error-message">
-      <div class="error-icon">⚠️</div>
+      <div class="error-icon">${icon}</div>
+      <div class="error-title">${title}</div>
       <div class="error-text">${escapeHtml(errorMessage)}</div>
-      <button class="btn-action">知道了</button>
+      <div class="error-actions">${actions}</div>
     </div>
   `;
 
-  const btn = content.querySelector('.btn-action');
-  btn.addEventListener('click', removeFloatingWindow);
+  // Add event listeners
+  const closeBtn = content.querySelector('.btn-close-error');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', removeFloatingWindow);
+  }
+
+  const settingsBtn = content.querySelector('.btn-settings');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+      removeFloatingWindow();
+    });
+  }
+
+  const retryBtn = content.querySelector('.btn-retry');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      showFloatingWindow(); // Retry the translation
+    });
+  }
 }
 
 // C1 FIX: Accept parameters instead of relying on global variables

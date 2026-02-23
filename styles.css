@@ -207,8 +207,57 @@
   margin-bottom: 16px;
 }
 
+.error-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
 .error-text {
   color: #721c24;
   margin-bottom: 20px;
   line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-settings {
+  background: #667eea;
+  color: white;
+}
+
+.btn-settings:hover {
+  background: #5568d3;
+}
+
+.btn-retry {
+  background: #48bb78;
+  color: white;
+}
+
+.btn-retry:hover {
+  background: #38a169;
+}
+
+.btn-close-error {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-close-error:hover {
+  background: #cbd5e0;
+}
+
+.btn-setup {
+  background: #667eea;
+  color: white;
+}
+
+.btn-setup:hover {
+  background: #5568d3;
 }
