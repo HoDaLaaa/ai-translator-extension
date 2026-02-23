@@ -102,7 +102,23 @@ function showIcon() {
 
   // Add click handler
   console.log('✅ About to bind click event to icon');
-  iconElement.addEventListener('click', handleIconClick);
+
+  // Use capture phase and stop propagation to prevent interference
+  iconElement.addEventListener('click', (e) => {
+    console.log('✅ CLICK EVENT FIRED!');
+    e.stopPropagation();
+    e.preventDefault();
+    handleIconClick(e);
+  }, true); // true = use capture phase
+
+  // Backup: also listen to mousedown in case click is blocked
+  iconElement.addEventListener('mousedown', (e) => {
+    console.log('✅ MOUSEDOWN EVENT FIRED!');
+    e.stopPropagation();
+    e.preventDefault();
+    handleIconClick(e);
+  }, true);
+
   console.log('✅ Click event bound successfully');
 
   // Add to page
@@ -124,8 +140,10 @@ function removeIcon() {
   }
 }
 
-function handleIconClick(event) {
-  event.stopPropagation();
+function handleIconClick(e) {
+  console.log('🔍 handleIconClick CALLED!');
+  console.log('🔍 Event object:', e);
+  e.stopPropagation();
   console.log('🔍 Icon clicked!');
   console.log('🔍 Selected text:', selectedText);
   showFloatingWindow();
