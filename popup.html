@@ -1,11 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI 語言學習助手</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>單字表</h1>
-  <p>功能開發中...</p>
+  <!-- Header 標題列與設定連結 -->
+  <header class="popup-header">
+    <h1>AI 語言學習助手</h1>
+    <a href="#" id="settings-link" title="開啟設定頁面">⚙️</a>
+  </header>
+
+  <!-- Search Bar 搜尋欄位 -->
+  <div class="search-container">
+    <input
+      type="text"
+      id="search-input"
+      class="search-input"
+      placeholder="搜尋單字或翻譯..."
+    >
+  </div>
+
+  <!-- Language Filters 語言篩選按鈕 -->
+  <div class="filter-container">
+    <button class="filter-btn active" data-lang="all">全部</button>
+    <button class="filter-btn" data-lang="en">英文</button>
+    <button class="filter-btn" data-lang="ja">日文</button>
+    <button class="filter-btn" data-lang="zh">中文</button>
+    <button class="filter-btn" data-lang="ko">韓文</button>
+  </div>
+
+  <!-- Stats & Actions 統計資訊與匯入匯出按鈕 -->
+  <div class="stats-container">
+    <div class="stats-info">
+      <span id="total-count">共 0 個單字</span>
+      <span id="filtered-count" class="filtered-count"></span>
+    </div>
+    <div class="action-buttons">
+      <button id="export-btn" class="action-btn" title="匯出單字表">📤 匯出</button>
+      <button id="import-btn" class="action-btn" title="匯入單字表">📥 匯入</button>
+      <input type="file" id="import-file" accept=".json" style="display: none;">
+    </div>
+  </div>
+
+  <!-- Word List 單字卡片列表 (可捲動區域) -->
+  <div class="word-list-container" id="word-list">
+    <!-- Word cards will be dynamically inserted here by popup.js -->
+  </div>
+
+  <!-- Empty State 空狀態提示 (初始隱藏,當沒有單字時顯示) -->
+  <div class="empty-state" id="empty-state" style="display: none;">
+    <div class="empty-icon">📚</div>
+    <div class="empty-title">還沒有單字</div>
+    <div class="empty-message">
+      在網頁上選取文字後<br>
+      點擊「加入單字表」開始收集！
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
 </body>
 </html>

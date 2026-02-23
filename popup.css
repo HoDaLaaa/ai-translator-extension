@@ -1,0 +1,423 @@
+/* ===================================
+   全域設定與版面配置
+   =================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 400px;
+  height: 600px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===================================
+   Header 標題列
+   =================================== */
+
+.popup-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.popup-header h1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+#settings-link {
+  font-size: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}
+
+#settings-link:hover {
+  transform: rotate(90deg);
+}
+
+/* ===================================
+   Search Bar 搜尋欄
+   =================================== */
+
+.search-container {
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ===================================
+   Language Filters 語言篩選按鈕
+   =================================== */
+
+.filter-container {
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: #495057;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.filter-btn.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+/* ===================================
+   Stats & Actions 統計與操作按鈕
+   =================================== */
+
+.stats-container {
+  padding: 10px 16px;
+  background: white;
+  border-bottom: 2px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stats-info {
+  font-size: 13px;
+  color: #6c757d;
+  display: flex;
+  gap: 12px;
+}
+
+.filtered-count {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: #495057;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+}
+
+/* ===================================
+   Word List 單字卡片列表
+   =================================== */
+
+.word-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f8f9fa;
+}
+
+/* Scrollbar styling for webkit browsers */
+.word-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.word-list-container::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+
+.word-list-container::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 4px;
+}
+
+.word-list-container::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* ===================================
+   Word Card 單字卡片
+   =================================== */
+
+.word-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.word-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.word-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.word-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.word-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.language-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+}
+
+.language-tag.en {
+  background: #4dabf7;
+}
+
+.language-tag.ja {
+  background: #ff6b6b;
+}
+
+.language-tag.zh {
+  background: #51cf66;
+}
+
+.language-tag.ko {
+  background: #ffd43b;
+  color: #333;
+}
+
+.delete-btn {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.word-translation {
+  font-size: 15px;
+  color: #495057;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.word-part-of-speech {
+  font-size: 12px;
+  color: #868e96;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.word-explanation {
+  font-size: 13px;
+  color: #6c757d;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.word-examples {
+  margin-bottom: 10px;
+}
+
+.example-item {
+  font-size: 13px;
+  color: #495057;
+  margin-bottom: 4px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.example-item::before {
+  content: "•";
+  position: absolute;
+  left: 6px;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.word-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
+  font-size: 12px;
+  color: #868e96;
+}
+
+.word-source {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.word-source a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.word-source a:hover {
+  text-decoration: underline;
+}
+
+.word-date {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* ===================================
+   Empty State 空狀態
+   =================================== */
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #868e96;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.empty-message {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6c757d;
+}
+
+/* ===================================
+   No Results State 無搜尋結果狀態
+   =================================== */
+
+.no-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #868e96;
+}
+
+.no-results-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-results-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.no-results-message {
+  font-size: 13px;
+  color: #6c757d;
+}
