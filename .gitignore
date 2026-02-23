@@ -24,3 +24,6 @@ build/
 # 敏感資訊（雖然不會存在 repo 中，但預防萬一）
 .env
 secrets.json
+
+# Git worktrees（開發用的隔離工作空間）
+.worktrees/
