@@ -1,5 +1,6 @@
 // Content script for AI Translator Extension
-console.log('AI Translator Extension: Content script loaded');
+console.log('✅ AI Translator content.js loaded!');
+console.log('✅ Window location:', window.location.href);
 
 let selectedText = '';
 let selectionRange = null;
@@ -64,6 +65,9 @@ function showIcon() {
   iconElement.innerHTML = '💡';
   iconElement.title = '點擊查看 AI 解釋';
 
+  console.log('✅ Floating icon created');
+  console.log('✅ Icon element:', iconElement);
+
   // Position icon with boundary detection
   const rect = selectionRange.getBoundingClientRect();
   const iconSize = 32; // Match CSS width/height
@@ -97,10 +101,14 @@ function showIcon() {
   iconElement.style.top = `${top}px`;
 
   // Add click handler
+  console.log('✅ About to bind click event to icon');
   iconElement.addEventListener('click', handleIconClick);
+  console.log('✅ Click event bound successfully');
 
   // Add to page
   document.body.appendChild(iconElement);
+  console.log('✅ Icon appended to body');
+  console.log('✅ Icon in DOM:', document.body.contains(iconElement));
 
   // Fade in animation
   requestAnimationFrame(() => {
