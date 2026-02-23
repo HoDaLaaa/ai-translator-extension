@@ -242,14 +242,38 @@ async function updateStats() {
 }
 
 async function saveWord(word) {
+  // I4 FIX: Validate required fields and sanitize data before saving
+  if (!word.word || !word.translation || !word.language) {
+    throw new Error('資料格式錯誤：缺少必要欄位');
+  }
+
+  // Sanitize data to prevent XSS and ensure data integrity
+  const sanitizedWord = {
+    id: word.id,
+    word: String(word.word).trim(),
+    language: String(word.language),
+    translation: String(word.translation),
+    partOfSpeech: String(word.partOfSpeech || ''),
+    explanation: String(word.explanation || ''),
+    examples: Array.isArray(word.examples) ? word.examples : [],
+    context: String(word.context || ''),
+    sourceUrl: String(word.sourceUrl || ''),
+    savedAt: word.savedAt
+  };
+
+  // Validate that sanitized word is not empty
+  if (!sanitizedWord.word) {
+    throw new Error('資料格式錯誤：單字不能為空');
+  }
+
   // Get existing vocabulary
   const result = await chrome.storage.local.get(['vocabulary']);
   const vocabulary = result.vocabulary || [];
 
-  // Check for duplicates
+  // Check for duplicates using sanitized word
   const duplicate = vocabulary.find(w =>
-    w.word.toLowerCase() === word.word.toLowerCase() &&
-    w.sourceUrl === word.sourceUrl
+    w.word.toLowerCase() === sanitizedWord.word.toLowerCase() &&
+    w.sourceUrl === sanitizedWord.sourceUrl
   );
 
   if (duplicate) {
@@ -257,10 +281,10 @@ async function saveWord(word) {
   }
 
   // Add new word (at beginning)
-  vocabulary.unshift(word);
+  vocabulary.unshift(sanitizedWord);
 
   // Save back to storage
   await chrome.storage.local.set({ vocabulary });
 
-  console.log('Word saved:', word);
+  console.log('Word saved:', sanitizedWord);
 }

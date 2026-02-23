@@ -300,6 +300,13 @@ function displayTranslation(data, mode) {
 
   const content = floatingWindow.querySelector('.ai-translator-content');
 
+  // C1 FIX: Capture values at display time to prevent race conditions
+  // If user selects different text before clicking "Add to vocabulary",
+  // we want to save the text that was actually translated, not the new selection
+  const wordToSave = selectedText;
+  const rangeToSave = selectionRange;
+  const currentUrl = window.location.href;
+
   if (mode === 'learning') {
     // Learning mode: show full details
     content.innerHTML = `
@@ -353,7 +360,8 @@ function displayTranslation(data, mode) {
   // Add event listeners
   const saveBtn = content.querySelector('.btn-save');
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => saveToVocabulary(data));
+    // Pass captured values to prevent race conditions
+    saveBtn.addEventListener('click', () => saveToVocabulary(data, wordToSave, rangeToSave, currentUrl));
   }
 
   const closeBtn = content.querySelector('.btn-close-action');
@@ -376,24 +384,27 @@ function displayError(errorMessage) {
   btn.addEventListener('click', removeFloatingWindow);
 }
 
-async function saveToVocabulary(data) {
-  const word = {
-    id: Date.now().toString(),
-    word: selectedText,
-    language: detectLanguage(selectedText),
+// C1 FIX: Accept parameters instead of relying on global variables
+// This prevents race conditions when user selects different text before saving
+async function saveToVocabulary(data, word, range, url) {
+  const wordData = {
+    // I1 FIX: Add random suffix to prevent ID collisions when saving multiple words in same millisecond
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    word: word,
+    language: detectLanguage(word),
     translation: data.translation,
     partOfSpeech: data.partOfSpeech || '',
     explanation: data.explanation || '',
     examples: data.examples || [],
-    context: getSelectionContext(selectionRange, selectedText, 50),
-    sourceUrl: window.location.href,
+    context: getSelectionContext(range, word, 50),
+    sourceUrl: url,
     savedAt: new Date().toISOString()
   };
 
   try {
     const response = await chrome.runtime.sendMessage({
       action: 'saveWord',
-      data: word
+      data: wordData
     });
 
     if (response.success) {
@@ -411,14 +422,32 @@ async function saveToVocabulary(data) {
   }
 }
 
+// C2 FIX: Improved language detection to support Chinese, Japanese, Korean, and English
 function detectLanguage(text) {
-  // Simple language detection based on character sets
-  const japanesePattern = /[\u3040-\u309f\u30a0-\u30ff]/;
+  // Chinese (Traditional/Simplified) - CJK Unified Ideographs
+  const chinesePattern = /[\u4e00-\u9fff]/;
+  // Japanese Hiragana/Katakana
+  const japaneseKanaPattern = /[\u3040-\u309f\u30a0-\u30ff]/;
+  // Korean Hangul
+  const koreanPattern = /[\uac00-\ud7af]/;
 
-  if (japanesePattern.test(text)) {
+  // Priority 1: Japanese Kana indicates Japanese (even if mixed with Kanji)
+  // This is important because Japanese text often contains Kanji (Chinese characters)
+  // but the presence of Hiragana/Katakana is a definitive indicator of Japanese
+  if (japaneseKanaPattern.test(text)) {
     return 'ja';
   }
 
-  // Default to English for non-CJK text
+  // Priority 2: Korean Hangul
+  if (koreanPattern.test(text)) {
+    return 'ko';
+  }
+
+  // Priority 3: Chinese (has CJK characters but no Kana/Hangul)
+  if (chinesePattern.test(text)) {
+    return 'zh';
+  }
+
+  // Default: English for non-CJK text
   return 'en';
 }
