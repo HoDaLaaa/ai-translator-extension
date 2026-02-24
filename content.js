@@ -437,6 +437,11 @@ function displayTranslation(data, mode) {
     // Learning mode: show full details
     console.log('🔍 Setting learning mode HTML');
     content.innerHTML = `
+      <div class="translation-actions">
+        <button class="btn-action btn-save">⭐ 加入單字表</button>
+        <button class="btn-action btn-close-action">✕ 關閉</button>
+      </div>
+
       <div class="translation-section">
         <div class="section-header">📖 翻譯</div>
         <div class="section-content">${escapeHtml(data.translation)}</div>
@@ -464,24 +469,19 @@ function displayTranslation(data, mode) {
         </div>
       </div>
       ` : ''}
-
-      <div class="translation-actions">
-        <button class="btn-action btn-save">⭐ 加入單字表</button>
-        <button class="btn-action btn-close-action">✕ 關閉</button>
-      </div>
     `;
     console.log('🔍 Learning mode HTML set');
   } else {
     // Translation mode: show only translation
     console.log('🔍 Setting translation mode HTML');
     content.innerHTML = `
+      <div class="translation-actions">
+        <button class="btn-action btn-close-action">✕ 關閉</button>
+      </div>
+
       <div class="translation-section">
         <div class="section-header">📖 翻譯</div>
         <div class="section-content translation-only">${escapeHtml(data.translation)}</div>
-      </div>
-
-      <div class="translation-actions">
-        <button class="btn-action btn-close-action">✕ 關閉</button>
       </div>
     `;
     console.log('🔍 Translation mode HTML set');
