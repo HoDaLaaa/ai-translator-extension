@@ -1,0 +1,12 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue circular background -->
+  <circle cx="8" cy="8" r="8" fill="#4A90E2"/>
+
+  <!-- Book icon (white) -->
+  <path d="M4 4 L4 12 L12 12 L12 4 Z M5 5 L11 5 L11 11 L5 11 Z M8 5 L8 11"
+        stroke="white" fill="none" stroke-width="0.8" stroke-linecap="round"/>
+
+  <!-- Light bulb (yellow) - simplified -->
+  <circle cx="11" cy="5" r="2" fill="#FFD700"/>
+  <line x1="11" y1="7" x2="11" y2="8" stroke="#FFD700" stroke-width="0.8"/>
+</svg>

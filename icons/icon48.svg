@@ -1,0 +1,17 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue circular background -->
+  <circle cx="24" cy="24" r="24" fill="#4A90E2"/>
+
+  <!-- Book icon (white) -->
+  <rect x="14" y="16" width="20" height="20" rx="1" fill="white" opacity="0.9"/>
+  <rect x="16" y="18" width="16" height="16" fill="#4A90E2"/>
+  <line x1="24" y1="18" x2="24" y2="34" stroke="white" stroke-width="1.5" opacity="0.5"/>
+  <line x1="16" y1="22" x2="32" y2="22" stroke="white" stroke-width="0.8" opacity="0.3"/>
+  <line x1="16" y1="26" x2="32" y2="26" stroke="white" stroke-width="0.8" opacity="0.3"/>
+  <line x1="16" y1="30" x2="32" y2="30" stroke="white" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- Light bulb (yellow) -->
+  <circle cx="34" cy="14" r="5" fill="#FFD700"/>
+  <path d="M32 18 L32 20 L36 20 L36 18" fill="#FFD700"/>
+  <circle cx="34" cy="14" r="3" fill="white" opacity="0.4"/>
+</svg>

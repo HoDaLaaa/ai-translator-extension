@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖示轉換工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4A90E2;
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .icon-preview {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .icon-preview img {
+            display: block;
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            background: white;
+        }
+        button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f4f8;
+            border-left: 4px solid #4A90E2;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 AI 語言學習助手 - 圖示轉換工具</h1>
+
+        <div class="instructions">
+            <strong>📋 使用說明：</strong>
+            <ol>
+                <li>點擊下方的「🚀 開始轉換」按鈕</li>
+                <li>等待轉換完成（約 1 秒）</li>
+                <li>點擊「📥 下載全部」按鈕，三個 PNG 檔案會自動下載</li>
+                <li>檢查你的「下載」資料夾，應該會有三個檔案：
+                    <ul>
+                        <li>icon16.png</li>
+                        <li>icon48.png</li>
+                        <li>icon128.png</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="convertAll()" style="font-size: 16px; padding: 15px 30px;">🚀 開始轉換</button>
+            <button onclick="downloadAll()" style="font-size: 16px; padding: 15px 30px;">📥 下載全部</button>
+        </div>
+
+        <div id="status" class="status">
+            準備就緒。點擊「開始轉換」按鈕。
+        </div>
+
+        <div class="preview" id="preview"></div>
+    </div>
+
+    <!-- SVG definitions embedded directly -->
+    <svg style="display: none;">
+        <defs>
+            <g id="icon16-svg">
+                <circle cx="8" cy="8" r="8" fill="#4A90E2"/>
+                <path d="M4 4 L4 12 L12 12 L12 4 Z M5 5 L11 5 L11 11 L5 11 Z M8 5 L8 11"
+                      stroke="white" fill="none" stroke-width="0.8" stroke-linecap="round"/>
+                <circle cx="11" cy="5" r="2" fill="#FFD700"/>
+                <line x1="11" y1="7" x2="11" y2="8" stroke="#FFD700" stroke-width="0.8"/>
+            </g>
+
+            <g id="icon48-svg">
+                <circle cx="24" cy="24" r="24" fill="#4A90E2"/>
+                <rect x="14" y="16" width="20" height="20" rx="1" fill="white" opacity="0.9"/>
+                <rect x="16" y="18" width="16" height="16" fill="#4A90E2"/>
+                <line x1="24" y1="18" x2="24" y2="34" stroke="white" stroke-width="1.5" opacity="0.5"/>
+                <line x1="16" y1="22" x2="32" y2="22" stroke="white" stroke-width="0.8" opacity="0.3"/>
+                <line x1="16" y1="26" x2="32" y2="26" stroke="white" stroke-width="0.8" opacity="0.3"/>
+                <line x1="16" y1="30" x2="32" y2="30" stroke="white" stroke-width="0.8" opacity="0.3"/>
+                <circle cx="34" cy="14" r="5" fill="#FFD700"/>
+                <path d="M32 18 L32 20 L36 20 L36 18" fill="#FFD700"/>
+                <circle cx="34" cy="14" r="3" fill="white" opacity="0.4"/>
+            </g>
+
+            <g id="icon128-svg">
+                <defs>
+                    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#5BA3E8;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#4A90E2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle cx="64" cy="64" r="64" fill="url(#bgGradient)"/>
+                <rect x="30" y="40" width="60" height="60" rx="3" fill="rgba(0,0,0,0.1)"/>
+                <rect x="28" y="38" width="60" height="60" rx="3" fill="white" opacity="0.95"/>
+                <rect x="32" y="42" width="52" height="52" rx="1" fill="#4A90E2"/>
+                <line x1="64" y1="42" x2="64" y2="94" stroke="white" stroke-width="2" opacity="0.5"/>
+                <line x1="36" y1="52" x2="60" y2="52" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="68" y1="52" x2="80" y2="52" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="36" y1="60" x2="60" y2="60" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="68" y1="60" x2="80" y2="60" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="36" y1="68" x2="60" y2="68" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="68" y1="68" x2="80" y2="68" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="36" y1="76" x2="60" y2="76" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="68" y1="76" x2="80" y2="76" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="36" y1="84" x2="60" y2="84" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <line x1="68" y1="84" x2="80" y2="84" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <circle cx="90" cy="38" r="14" fill="#FFD700" opacity="0.3"/>
+                <circle cx="90" cy="38" r="12" fill="#FFD700"/>
+                <path d="M84 50 L84 56 L96 56 L96 50 Z" fill="#FFD700"/>
+                <rect x="86" y="56" width="8" height="4" rx="1" fill="#E6C200"/>
+                <circle cx="90" cy="38" r="8" fill="white" opacity="0.5"/>
+                <path d="M88 36 L88 40 M92 36 L92 40" stroke="#E6C200" stroke-width="1.5" opacity="0.6"/>
+            </g>
+        </defs>
+    </svg>
+
+    <script>
+        const icons = [
+            { name: 'icon16', size: 16, svgId: 'icon16-svg' },
+            { name: 'icon48', size: 48, svgId: 'icon48-svg' },
+            { name: 'icon128', size: 128, svgId: 'icon128-svg' }
+        ];
+
+        let pngBlobs = {};
+
+        function convertAll() {
+            const statusDiv = document.getElementById('status');
+            const previewDiv = document.getElementById('preview');
+            previewDiv.innerHTML = '';
+            pngBlobs = {};
+
+            statusDiv.textContent = '⏳ 正在轉換...';
+
+            icons.forEach(({ name, size, svgId }) => {
+                try {
+                    // Get SVG element
+                    const svgElement = document.getElementById(svgId);
+
+                    // Create a new SVG with proper viewBox
+                    const svgNS = "http://www.w3.org/2000/svg";
+                    const newSvg = document.createElementNS(svgNS, "svg");
+                    newSvg.setAttribute("width", size);
+                    newSvg.setAttribute("height", size);
+                    newSvg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+
+                    // Clone the content
+                    const clone = svgElement.cloneNode(true);
+                    newSvg.appendChild(clone);
+
+                    // Serialize SVG to string
+                    const serializer = new XMLSerializer();
+                    const svgString = serializer.serializeToString(newSvg);
+
+                    // Convert to PNG
+                    const img = new Image();
+                    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, size, size);
+
+                        canvas.toBlob((pngBlob) => {
+                            const pngUrl = URL.createObjectURL(pngBlob);
+                            pngBlobs[name] = pngBlob;
+
+                            // Create preview
+                            const previewItem = document.createElement('div');
+                            previewItem.className = 'icon-preview';
+                            previewItem.innerHTML = `
+                                <h3>${name}.png</h3>
+                                <p>${size}x${size} 像素</p>
+                                <img src="${pngUrl}" width="${Math.min(size, 128)}" height="${Math.min(size, 128)}" alt="${name}">
+                                <div style="margin-top: 15px;">
+                                    <button onclick="downloadOne('${name}')">
+                                        📥 下載此圖示
+                                    </button>
+                                </div>
+                            `;
+                            previewDiv.appendChild(previewItem);
+
+                            URL.revokeObjectURL(url);
+
+                            // Update status when all done
+                            if (Object.keys(pngBlobs).length === icons.length) {
+                                statusDiv.textContent = '✅ 轉換完成！現在可以下載 PNG 檔案了。';
+                                statusDiv.className = 'status success';
+                            }
+                        }, 'image/png');
+                    };
+
+                    img.src = url;
+
+                } catch (error) {
+                    console.error(`轉換 ${name} 時發生錯誤:`, error);
+                    statusDiv.textContent = `❌ 轉換 ${name} 失敗: ${error.message}`;
+                }
+            });
+        }
+
+        function downloadOne(name) {
+            if (!pngBlobs[name]) {
+                alert('請先點擊「開始轉換」按鈕');
+                return;
+            }
+
+            const url = URL.createObjectURL(pngBlobs[name]);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+
+        function downloadAll() {
+            if (Object.keys(pngBlobs).length === 0) {
+                alert('請先點擊「開始轉換」按鈕');
+                return;
+            }
+
+            icons.forEach(({ name }, index) => {
+                setTimeout(() => downloadOne(name), index * 200);
+            });
+        }
+
+        // Auto convert on page load
+        window.addEventListener('load', () => {
+            setTimeout(convertAll, 500);
+        });
+    </script>
+</body>
+</html>
