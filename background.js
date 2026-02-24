@@ -151,6 +151,11 @@ async function callAPI(endpoint, apiKey, model, prompt) {
 }
 
 function parseResponse(content) {
+  // Debug: log the raw API response
+  console.log('🔍 parseResponse() called');
+  console.log('🔍 Raw API response content:', content);
+  console.log('🔍 Content length:', content.length);
+
   // Parse the structured response
   const lines = content.split('\n').filter(line => line.trim());
 
