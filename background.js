@@ -156,15 +156,28 @@ function parseResponse(content) {
   console.log('🔍 Raw API response content:', content);
   console.log('🔍 Content length:', content.length);
 
-  // Parse the structured response
-  const lines = content.split('\n').filter(line => line.trim());
-
   const result = {
     translation: '',
     partOfSpeech: '',
     explanation: '',
     examples: []
   };
+
+  // Check if response has structured markers
+  const hasStructure = content.includes('翻譯:') || content.includes('翻译:') ||
+                       content.includes('詞性:') || content.includes('词性:');
+
+  if (!hasStructure) {
+    // Plain text response - treat entire content as translation
+    console.log('🔍 No structure markers found, treating as plain translation');
+    result.translation = content.trim();
+    return result;
+  }
+
+  console.log('🔍 Structure markers found, parsing structured response');
+
+  // Parse the structured response
+  const lines = content.split('\n').filter(line => line.trim());
 
   let currentSection = '';
   let exampleBuffer = '';
