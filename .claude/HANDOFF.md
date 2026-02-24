@@ -1,10 +1,16 @@
-# Session Handoff - 2026-02-23
+# AI 語言學習外掛 - 專案狀態
 
-## 🎉 已完成主要功能（Task 1-9）
+## 📦 專案資訊
 
-AI 語言學習翻譯外掛的主要功能已經全部實現並通過代碼審查！
+- **名稱**: AI 語言學習助手 (AI Translator Extension)
+- **GitHub**: https://github.com/HoDaLaaa/ai-translator-extension
+- **類型**: Chrome/Edge 瀏覽器外掛 (Manifest V3)
+- **狀態**: ✅ MVP 完成，已發布到 GitHub
+- **最後更新**: 2026-02-24
 
-### ✅ 已完成的任務
+## 🎉 已完成功能（Tasks 1-12 全部完成）
+
+### ✅ 所有任務清單
 
 | 任務 | 狀態 | 說明 |
 |------|------|------|
@@ -13,197 +19,186 @@ AI 語言學習翻譯外掛的主要功能已經全部實現並通過代碼審�
 | Task 3 | ✅ 完成 | 浮動圖示顯示（含邊界檢查、滾動處理）|
 | Task 4 | ✅ 完成 | 浮動視窗 UI 與載入狀態 |
 | Task 5 | ✅ 完成 | 設定頁面（API endpoint, key, model 選擇）|
-| Task 6 | ✅ 完成 | Background Script API 整合（Claude API 呼叫）|
+| Task 6 | ✅ 完成 | Background Script API 整合 |
 | Task 7 | ✅ 完成 | AI 回應模式偵測與顯示（學習模式 vs 翻譯模式）|
-| Task 8 | ✅ 完成 | 單字儲存功能（含語言偵測改進：支援中日韓英）|
+| Task 8 | ✅ 完成 | 單字儲存功能（含語言偵測：支援中日韓英）|
 | Task 9 | ✅ 完成 | 單字表管理 Popup（完整的詞彙管理介面）|
+| Task 10 | ✅ 完成 | 錯誤處理改進（分類錯誤、友善提示）|
+| Task 11 | ✅ 完成 | 圖示素材（16x16, 48x48, 128x128）|
+| Task 12 | ✅ 完成 | 最終測試與完成 |
 
-### 🎯 核心功能運作流程
+### 🎯 核心功能
 
-1. **使用者在網頁上選取文字**
-2. **浮動圖示 💡 出現**（含智慧定位和邊界檢查）
-3. **點擊圖示後顯示浮動視窗**
-4. **自動偵測模式**：
-   - 短單字/片語（< 10 字且無標點）→ 學習模式 🎓（顯示翻譯+詞性+說明+例句）
-   - 完整句子（有標點或 ≥ 10 字）→ 翻譯模式 🌐（只顯示翻譯）
-5. **呼叫 Claude API** 取得 AI 回應
-6. **顯示結構化資料**（翻譯、詞性、說明、例句）
-7. **可加入單字表**（按鈕已實作，儲存功能在 Task 8）
+1. **文字選取與翻譯**
+   - 選取網頁文字 → 浮動圖示 💡 出現
+   - 點擊圖示 → 顯示 AI 翻譯結果
+   - 智慧定位（邊界檢查、避免遮擋）
 
-### 📁 主要檔案
+2. **AI 回應模式自動偵測**
+   - **學習模式**（單字/片語）：顯示翻譯、詞性、說明、例句
+   - **翻譯模式**（完整句子）：只顯示翻譯
+   - 判斷依據：標點符號、文字長度
 
+3. **單字表管理**
+   - 儲存單字到本地（chrome.storage.local）
+   - 語言自動偵測（英文、日文、韓文、中文）
+   - 搜尋、語言篩選
+   - 匯入/匯出 JSON
+   - 刪除單字
+
+4. **設定介面**
+   - API Endpoint 設定
+   - API Key 設定（隱藏顯示）
+   - 模型選擇（含自訂選項）
+   - 測試連線功能
+
+## 🏗️ 技術架構
+
+### 檔案結構
 ```
-.worktrees/feature-core-extension/
-├── manifest.json          # 外掛設定（含 options_page）
-├── background.js          # API 整合、統計追蹤
-├── content.js            # 文字選取、UI 顯示、模式偵測
-├── styles.css            # 圖示和視窗樣式
-├── settings.html         # 設定頁面 HTML
-├── settings.js           # 設定頁面邏輯
-├── settings.css          # 設定頁面樣式
-├── popup.html            # 單字表管理 Popup UI
-├── popup.js              # 單字表管理功能
-├── popup.css             # Popup 樣式
-└── icons/                # 圖示目錄（空的，Task 11 會處理）
-```
-
-### 🔧 技術要點
-
-1. **改進過的上下文擷取**（Task 2）
-   - 使用 Range API 正確處理跨節點選取
-   - 不依賴 indexOf（避免重複文字的定位錯誤）
-
-2. **邊界檢查和滾動處理**（Task 3）
-   - 圖示智慧定位（檢查四個邊界）
-   - 滾動時自動隱藏圖示
-
-3. **模式偵測邏輯**（Task 7）
-   - 優先檢查標點符號
-   - CJK 字元計數方式不同（每個字算一個字）
-
-4. **API 整合**（Task 6）
-   - 30 秒超時處理
-   - 結構化 prompt 建立
-   - 回應解析成欄位（翻譯、詞性、說明、例句）
-
----
-
-## 📋 待完成的任務（Task 10-12）
-
-### Task 10: 錯誤處理改進
-**目標**: 完善錯誤處理和使用者提示
-
-**修改檔案**:
-- `content.js`: 加入重試邏輯、離線偵測
-- `background.js`: 改進錯誤訊息
-
-**改進項目**:
-- API 錯誤分類（401, 429, 500 等）
-- 網路連線檢查
-- 重試機制（最多 3 次）
-- 友善的錯誤訊息
-
-**詳細內容**: 參考計劃相關章節
-
----
-
-### Task 11: 圖示素材
-**目標**: 建立外掛圖示（16x16, 48x48, 128x128）
-
-**方法**:
-- 使用 AI 圖片生成工具（如 DALL-E、Midjourney）
-- 或使用線上圖示編輯器
-- 建立藍色書本 + 燈泡的組合圖示
-
-**修改檔案**:
-- 在 `icons/` 目錄建立三個 PNG 檔案
-- 更新 `manifest.json` 加回 `default_icon` 和 `icons` 區塊
-
-**詳細內容**: 參考計劃相關章節
-
----
-
-### Task 12: 最終測試與完成
-**目標**: 全面測試和修正所有功能
-
-**測試項目**:
-1. 文字選取（各種情況）
-2. 模式偵測準確性
-3. API 呼叫和回應顯示
-4. 單字儲存和管理
-5. 設定頁面
-6. 錯誤處理
-7. 跨瀏覽器測試（Chrome + Edge）
-
-**修正和優化**:
-- 修復測試中發現的 bug
-- 性能優化
-- 使用者體驗改進
-
-**完成檢查清單**:
-- [ ] 所有功能正常運作
-- [ ] 無 Console 錯誤
-- [ ] 圖示正確顯示
-- [ ] 設定可以儲存和載入
-- [ ] 單字表可以匯入/匯出
-- [ ] README 更新
-
----
-
-## 🔑 重要資訊
-
-### Git 狀態
-- **分支**: `feature/core-extension`
-- **工作目錄**: `.worktrees/feature-core-extension`
-- **最新 commit**: Task 7 - AI 回應模式偵測與顯示
-
-### 已提交的 Commits
-```
-afcebcc - feat: add basic extension structure with manifest and scripts
-0bd521e - fix: add popup.html and error handling, remove icon references
-16ba955 - feat: implement text selection detection with context capture
-e13f645 - fix: improve selection detection with range count check
-deb83aa - fix: improve context positioning to handle cross-node text selection
-2b23dc3 - feat: add floating icon that appears on text selection
-4f1d6fa - fix: add boundary detection and scroll handling for floating icon
-6a17ea7 - feat: add floating window UI with loading state
-9ce5cda - feat: add settings page for API configuration
-6e21756 - feat: implement Claude API integration in background script
-0e32c60 - feat: implement AI response mode detection and display (learning vs translation)
-4c62ae1 - feat: implement vocabulary storage to chrome.storage.local
-302522f - fix: improve vocabulary storage - variable scope, language detection, validation
-0bc24ca - feat: implement vocabulary management popup
-65790b4 - fix: improve popup code quality - memory leak, validation, error logging
+ai_translator_extension/
+├── manifest.json          # 外掛配置 (Manifest V3)
+├── background.js          # Service Worker - API 呼叫、資料管理
+├── content.js            # Content Script - 文字選取、UI 顯示
+├── styles.css            # 浮動視窗樣式
+├── popup.html/js/css     # 單字表管理 Popup
+├── settings.html/js/css  # 設定頁面
+├── icons/                # 圖示素材 (PNG + SVG)
+│   ├── icon16.png
+│   ├── icon48.png
+│   ├── icon128.png
+│   └── convert-icons.html  # SVG 轉 PNG 工具
+└── docs/plans/           # 設計文件、實作計劃
 ```
 
-### 測試注意事項
+### 技術要點
 
-1. **需要 Claude API Key**:
-   - 前往 https://console.anthropic.com/
-   - 建立 API key
-   - 在設定頁面填入
+1. **API 整合**
+   - 格式：OpenAI-compatible (`/chat/completions`)
+   - 超時處理：30 秒
+   - 錯誤分類：API key、網路、超時等
 
-2. **目前可測試的功能**:
-   - ✅ 文字選取和圖示顯示
-   - ✅ 浮動視窗顯示
-   - ✅ 模式偵測（學習模式 vs 翻譯模式）
-   - ✅ API 呼叫和回應顯示
-   - ✅ 設定頁面的測試連線功能
-   - ✅ 加入單字表功能（儲存到 chrome.storage.local）
-   - ✅ 單字表 Popup（完整的詞彙管理介面）
-   - ✅ 語言偵測（支援中文、日文、韓文、英文）
-   - ✅ 搜尋和篩選單字
-   - ✅ 匯出/匯入 JSON
+2. **文字選取**
+   - 使用 Range API 處理跨節點選取
+   - 上下文擷取（前後各 50 字元）
+   - 避免 indexOf 造成的定位錯誤
+
+3. **UI/UX 改進**
+   - 按鈕在視窗頂部（避免被遮擋）
+   - 浮動視窗智慧定位
+   - 點擊事件使用 capture phase
+
+4. **資料儲存**
+   - chrome.storage.local
+   - XSS 防護（escapeHtml）
+   - 資料驗證和清理
+
+## 🐛 已修復的重要問題
+
+1. ✅ **API 格式轉換**
+   - 從 Claude API 格式改為 OpenAI 格式
+   - 修改 endpoint 和認證方式
+
+2. ✅ **點擊事件失效**
+   - 使用 event capture phase
+   - 添加 stopPropagation
+
+3. ✅ **Extension context invalidated**
+   - Try-catch wrapper
+   - 假設 API key 存在
+
+4. ✅ **翻譯模式空白視窗**
+   - parseResponse 處理純文字回應
+   - 檢測結構化標記
+
+5. ✅ **按鈕被遮擋**
+   - 移動按鈕到視窗頂部
+   - 更新 CSS 樣式
+
+6. ✅ **首次使用提示**
+   - 移除無效按鈕
+   - 提供文字說明
+
+## 📝 重要文件位置
+
+- **設計文件**: `docs/plans/2026-02-23-ai-translator-extension-design.md`
+- **實作計劃**: `docs/plans/2026-02-23-core-extension-implementation.md`
+- **此狀態文件**: `.claude/HANDOFF.md`
+
+## 💡 如何在下次 Session 繼續開發
+
+### 方法 1：直接告訴我（最簡單）
+
+開始新 session 時說：
+```
+我想繼續開發 AI 語言學習外掛專案
+專案位置：/Users/eddie_s_wang/projects/language/ai_translator_extension
+```
+
+我會自動讀取專案檔案和 git 歷史。
+
+### 方法 2：說明你的需求
+
+直接說你想做什麼，例如：
+- "我想加入發音功能"
+- "我想修改翻譯模式的判斷邏輯"
+- "有個 bug：xxx 功能不正常"
+
+我會：
+1. 讀取相關檔案
+2. 檢查 git log 了解背景
+3. 使用適當的 skill 執行（brainstorming、debugging 等）
+
+### 方法 3：參考這個文件
+
+直接說：
+```
+請讀取 .claude/HANDOFF.md，我想繼續開發這個專案
+```
+
+## 🚀 可能的未來功能擴充
+
+參考 `docs/plans/2026-02-23-ai-translator-extension-design.md` 的建議：
+
+- 📚 複習功能（閃卡模式）
+- 🏷️ 分類管理（資料夾/標籤）
+- ☁️ 雲端同步
+- 🌍 更多語言支援
+- 📖 Anki 整合
+- 🔊 發音功能
+- 🦊 Firefox 版本
+- 📊 學習統計和進度追蹤
+
+## 🔧 開發環境設定
+
+### 安裝到 Chrome
+1. 開啟 `chrome://extensions/`
+2. 啟用「開發人員模式」
+3. 點擊「載入未封裝項目」
+4. 選擇專案根目錄
+
+### Git 工作流程
+- **主分支**: `main`（穩定版本）
+- **功能開發**: 使用 `feature/*` 分支 + git worktree
+- **開發流程**: Brainstorming → Design → Implementation → Review → Merge
+
+### 使用的 Superpowers Skills
+- `brainstorming`: 探索需求、設計方案
+- `writing-plans`: 建立實作計劃
+- `using-git-worktrees`: 隔離開發環境
+- `subagent-driven-development`: 任務執行
+- `finishing-a-development-branch`: 完成開發、合併
 
 ---
 
-## 🚀 下一步
+## 📊 專案統計
 
-### 選項 1: 繼續在當前 Session
-如果 token 還夠用，繼續執行 Task 8-12
-
-### 選項 2: 開始新 Session
-1. 在新的 session 中說：「請繼續執行 AI translator 專案」
-2. Claude 會讀取這個 HANDOFF.md 並從 Task 8 開始
-
-### 選項 3: 先測試目前功能
-1. 按照 Task 7 完成報告中的測試步驟測試
-2. 如果發現任何問題，回報後再繼續
-3. 測試成功後，再繼續完成剩餘任務
+- **總檔案數**: 20 個
+- **總程式碼行數**: 5,828 行
+- **Commits**: 15+ 次提交
+- **開發時間**: 約 2 個工作天
+- **版本**: v0.1.0 (MVP)
 
 ---
 
-## 📊 進度統計
-
-- **完成**: 9 / 12 任務（75%）
-- **核心功能**: 100% ✅
-- **單字表管理**: 100% ✅
-- **錯誤處理**: 0% (Task 10)
-- **圖示素材**: 0% (Task 11)
-- **測試**: 0% (Task 12)
-
-**預估剩餘工作量**: 1-2 小時的開發時間（主要是錯誤處理優化和最終測試）
-
----
-
-**備註**: 這個專案使用 Subagent-Driven Development 流程執行，所有代碼都已通過規格審查和代碼質量審查。
+**備註**: 這個專案遵循 Subagent-Driven Development 工作流程，所有程式碼都經過規格審查和代碼質量審查。
