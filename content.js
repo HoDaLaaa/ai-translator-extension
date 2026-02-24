@@ -306,9 +306,9 @@ function showFirstTimeSetup() {
       <div class="error-message">
         <div class="error-icon">⚙️</div>
         <div class="error-title">首次使用需要設定</div>
-        <div class="error-text">請先設定 AI API 才能開始使用翻譯功能。</div>
-        <div class="error-actions">
-          <button class="btn-action btn-setup">立即設定</button>
+        <div class="error-text">
+          請先設定 AI API 才能開始使用翻譯功能。<br><br>
+          點擊瀏覽器工具列的外掛圖示，然後點擊右上角的 ⚙️ 齒輪圖示進入設定頁面。
         </div>
       </div>
     </div>
@@ -317,12 +317,6 @@ function showFirstTimeSetup() {
 
   const closeBtn = floatingWindow.querySelector('.ai-translator-close');
   closeBtn.addEventListener('click', removeFloatingWindow);
-
-  const setupBtn = floatingWindow.querySelector('.btn-setup');
-  setupBtn.addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
-    removeFloatingWindow();
-  });
 
   document.body.appendChild(floatingWindow);
   console.log('🔍 First-time setup window appended to body');
