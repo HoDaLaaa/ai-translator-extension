@@ -102,7 +102,7 @@
 
 - 🇬🇧 英文 (English)
 - 🇯🇵 日文 (Japanese)
-- 🇨🇳 中文 (Chinese)
+- 🇹🇼 中文 (Chinese)
 - 🇰🇷 韓文 (Korean)
 
 ### 📝 開發相關
@@ -233,7 +233,7 @@ ai-translator-extension/
 
 - 🇬🇧 English
 - 🇯🇵 Japanese
-- 🇨🇳 Chinese
+- 🇹🇼 Chinese
 - 🇰🇷 Korean
 
 ### 📝 Development
