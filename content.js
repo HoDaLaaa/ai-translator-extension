@@ -209,16 +209,27 @@ async function showFloatingWindow() {
 
   // Check if API is configured
   console.log('🔍 Checking API key...');
-  const settings = await chrome.storage.local.get(['apiKey']);
-  console.log('🔍 API key exists:', !!settings.apiKey);
 
-  if (!settings.apiKey) {
+  let hasApiKey = true; // Assume API key exists by default
+
+  try {
+    const settings = await chrome.storage.local.get(['apiKey']);
+    hasApiKey = !!settings.apiKey;
+    console.log('🔍 API key exists:', hasApiKey);
+  } catch (error) {
+    console.warn('🔍 Could not check API key (extension context issue), assuming it exists:', error);
+    // If chrome.storage fails (extension context invalidated), assume API key exists
+    // User will get error later if it's actually missing
+    hasApiKey = true;
+  }
+
+  if (!hasApiKey) {
     console.log('🔍 No API key, showing first-time setup');
     showFirstTimeSetup();
     return;
   }
 
-  console.log('🔍 API key found, continuing...');
+  console.log('🔍 API key found (or assumed), continuing...');
 
   // Remove existing window
   removeFloatingWindow();
